@@ -1,14 +1,14 @@
 # WordPress Category Posts Widget
-Contributors: James Lao, Automattic, Jeff Bowen
-Author URL: http://jameslao.com/
-Tags: category, posts, widget
-Requires at least: 3.8
-Tested up to: 3.9.1
-Stable tag: 3.3
-
-Adds a widget that shows the most recent posts in a single category.
+* Contributors: James Lao, Automattic, Jeff Bowen
+* Author URL: http://jameslao.com/
+* Tags: category, posts, widget
+* Requires at least: 3.8
+* Tested up to: 3.9.1
+* Stable tag: 3.4
 
 ## Description
+
+Adds a widget that can configurably display posts via category.
 
 Category Posts Widget is a light widget designed to do one thing and do it well: display the most recent posts from a certain category.
 
@@ -41,12 +41,14 @@ Note that version 3.0 drops support for [Simple Post Thumbnails plugin](http://w
 
 ## Changelog
 
-* 3.3
-  * Sort by slug uses 'rand' instead of 'random' -- see https://plugins.trac.wordpress.org/changeset/427984/category-posts/trunk/cat-posts.php
+* 3.4
   * Add in escaping / sanitization
   * Improve adherence to WordPress style guidelines ( braces, whitespace, etc. )
   * Use HTML5 input type “number” on appropriate fields in the config.
   * Fix some translation strings
+
+* 3.3
+  * Sort by slug uses 'rand' instead of 'random' -- see https://plugins.trac.wordpress.org/changeset/427984/category-posts/trunk/cat-posts.php
 
 * 3.2
   * Added option to change ordering of posts. Defaults to showing newest posts first.
