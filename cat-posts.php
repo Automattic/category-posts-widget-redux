@@ -127,20 +127,30 @@ class CategoryPosts extends WP_Widget {
 			}
 
 			if ( $instance['comment_num'] ) {
-				$output .= '<p class="comment-num">(';
+				$comment_output = '';
+
 					// safer clone of core comments_number() function
 					$number = get_comments_number();
 					if ( $number > 1 ) {
 						$comment_output = str_replace( '%', number_format_i18n( $number ), __( '% Comments' ) );
 					}
 					elseif ( $number == 0 ) {
-						$comment_output = __( 'No Comments' );
+						// By default, suppress the "No Comments" label
+						if ( apply_filters( 'category_posts_widget_show_no_comments', false ) ) {
+							$comment_output = __( 'No Comments' );
+						}
 					}
 					else {
 						$comment_output = __( '1 Comment' );
 					}
-					$output .= esc_html( apply_filters( 'comments_number', $comment_output, $number ) );
-				$output .= ')</p>';
+
+					$comment_output = apply_filters( 'category_posts_widget_comment_output', $comment_output, $number );
+
+					if ( ! empty( $comment_output ) ) {
+						$output .= '<p class="comment-num">( ';
+						$output .= esc_html( $comment_output );
+						$output .= ' )</p>';
+					}
 			}
 			$output .= '</li>';
 		}
