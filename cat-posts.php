@@ -58,13 +58,28 @@ class CategoryPosts extends WP_Widget {
 			$sort_order = 'DESC';
 		}
 
+		$arg_string = 'showposts=' . $instance[ 'num' ] .
+			'&cat=' . $instance[ 'cat' ] .
+			'&orderby=' . $sort_by .
+			'&order=' . $sort_order;
+
+		$cache_key = self::get_cache_key();
+
+		$cached_widget_contents = wp_cache_get( $cache_key, 'widget' );
+		if ( ! empty( $cached_widget_contents ) ) {
+
+			// Cache Hit!  Print the cached contents and clean up
+			echo wp_kses_post( $cached_widget_contents );
+			$post = $post_old;
+			return;
+		}
+
+		// Cache miss. Build the content of the widget.
+
+		$output = '';
+
 		// Get array of post info.
-		$cat_posts = new WP_Query(
-			"showposts=" . $instance[ 'num' ] .
-			"&cat=" . $instance[ 'cat' ] .
-			"&orderby=" . $sort_by .
-			"&order=" . $sort_order
-		);
+		$cat_posts = new WP_Query( $arg_string );
 
 		// Excerpt length filter
 		$new_excerpt_length = create_function( '$length', "return " . $instance[ 'excerpt_length' ] . ';' );
@@ -72,76 +87,79 @@ class CategoryPosts extends WP_Widget {
 			add_filter('excerpt_length', $new_excerpt_length);
 		}
 
-		echo wp_kses_post( $args['before_widget'] );
+		$output .= wp_kses_post( $args['before_widget'] );
 
 		// Widget title
-		echo wp_kses_post( $args['before_title'] );
+		$output .= wp_kses_post( $args['before_title'] );
 		if( $instance[ 'title_link' ] ) {
-			echo '<a href="' . esc_url( get_category_link( $instance[ 'cat' ] ) ) . '">' . esc_html( $instance[ 'title' ] ) . '</a>';
+			$output .= '<a href="' . esc_url( get_category_link( $instance[ 'cat' ] ) ) . '">' . esc_html( $instance[ 'title' ] ) . '</a>';
 		}
 		else {
-			echo esc_html( $instance[ 'title' ] );
+			$output .= esc_html( $instance[ 'title' ] );
 		}
 
-		echo wp_kses_post( $args['after_title'] );
+		$output .= wp_kses_post( $args['after_title'] );
 
 		// Post list
-		echo "<ul>\n";
+		$output .= "<ul>\n";
 
 		while ( $cat_posts->have_posts() ) {
 			$cat_posts->the_post();
-		?>
-			<li class="cat-post-item">
-				<a class="post-title" href="<?php the_permalink(); ?>" rel="bookmark" title="Permanent link to <?php the_title_attribute(); ?>"><?php the_title(); ?></a>
+			$output .= '<li class="cat-post-item"><a class="post-title" href="' . esc_url( get_the_permalink() ) .
+					'" rel="bookmark" title="Permanent link to ' . esc_html( the_title_attribute( 'echo=0' ) ) . '">' . esc_html( get_the_title() ) . '</a>';
 
-				<?php
-					if (
-						function_exists('the_post_thumbnail') &&
-						current_theme_supports("post-thumbnails") &&
-						$instance[ 'thumb' ] &&
-						has_post_thumbnail()
-					) :
-				?>
-					<a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
-					<?php the_post_thumbnail( 'cat_post_thumb_size'.$this->id ); ?>
-					</a>
-				<?php endif; ?>
+			if (
+				function_exists('the_post_thumbnail') &&
+				current_theme_supports("post-thumbnails") &&
+				$instance[ 'thumb' ] &&
+				has_post_thumbnail()
+			) {
+				$output .= '<a href="' . esc_url( get_the_permalink() ) . '" title="' . esc_attr( get_the_title_attribute() ) . '">' .
+					esc_html( get_the_post_thumbnail( 'cat_post_thumb_size' . $this->id ) ) . '</a>';
+			}
 
-				<?php if ( $instance['date'] ) : ?>
-				<p class="post-date"><?php the_time("j M Y"); ?></p>
-				<?php endif; ?>
+			if ( $instance['date'] ) {
+				$output .= '<p class="post-date">' . esc_html( get_the_time("j M Y") ) . '</p>';
+			}
 
-				<?php if ( $instance['excerpt'] ) : ?>
-				<?php the_excerpt(); ?>
-				<?php endif; ?>
+			if ( $instance['excerpt'] ) {
+				$output .= wp_kses_post( get_the_excerpt() );
+			}
 
-				<?php if ( $instance['comment_num'] ) : ?>
-				<p class="comment-num">(<?php
+			if ( $instance['comment_num'] ) {
+				$output .= '<p class="comment-num">(';
 					// safer clone of core comments_number() function
 					$number = get_comments_number();
 					if ( $number > 1 ) {
-						$output = str_replace( '%', number_format_i18n( $number ), __( '% Comments' ) );
+						$comment_output = str_replace( '%', number_format_i18n( $number ), __( '% Comments' ) );
 					}
 					elseif ( $number == 0 ) {
-						$output = __( 'No Comments' );
+						$comment_output = __( 'No Comments' );
 					}
 					else {
-						$output = __( '1 Comment' );
+						$comment_output = __( '1 Comment' );
 					}
-					echo esc_html( apply_filters( 'comments_number', $output, $number ) );
-				?>)</p>
-				<?php endif; ?>
-			</li>
-		<?php
+					$output .= esc_html( apply_filters( 'comments_number', $comment_output, $number ) );
+				$output .= ')</p>';
+			}
+			$output .= '</li>';
 		}
 
-		echo "</ul>\n";
+		$output .= "</ul>\n";
 
-		echo wp_kses_post( $args['after_widget'] );
+		$output .= wp_kses_post( $args['after_widget'] );
 
 		remove_filter( 'excerpt_length', $new_excerpt_length );
 
 		$post = $post_old; // Restore the post object.
+
+		$output = wp_kses_post( $output );
+
+		// Max is limited by the liftetime of the nonce in get_cache_key
+		$cache_expires = apply_filters( 'category_posts_widget_cache_expires', 30 * MINUTE_IN_SECONDS );
+		wp_cache_set( $cache_key, $output, 'widget', $cache_expires );
+
+		echo $output;
 	}
 
 	/**
@@ -166,6 +184,8 @@ class CategoryPosts extends WP_Widget {
 			$sizes[$this->id] = array( $new_instance['thumb_w'], $new_instance['thumb_h'] );
 			update_option( 'jlao_cat_post_thumb_sizes', $sizes );
 		}
+
+		do_action( 'update_widget_category_posts' );
 
 		return $new_instance;
 	}
@@ -360,6 +380,23 @@ class CategoryPosts extends WP_Widget {
 	<?php endif;
 	}
 
+	function flush_cache() {
+		$cache_key = self::get_cache_key();
+		wp_cache_delete( $cache_key, 'widget' );
+	}
+
+	static function get_cache_key() {
+		$key = 'category_posts_widget-' . get_current_blog_id() . '-';
+		$key .= wp_create_nonce( $key );
+		return $key;
+	}
+
 }
 
 add_action( 'widgets_init', create_function('', 'return register_widget("CategoryPosts");') );
+
+// Invalidate our cache on certain events
+$flush_cache_callable = array( 'CategoryPosts', 'flush_cache' );
+add_action( 'save_post',                             $flush_cache_callable );
+add_action( 'update_widget_category_posts',          $flush_cache_callable );
+add_action( 'deleted_post',                          $flush_cache_callable );
