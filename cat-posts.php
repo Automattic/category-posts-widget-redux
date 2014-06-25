@@ -404,7 +404,7 @@ add_action( 'widgets_init', create_function('', 'return register_widget("Categor
 
 // Invalidate our cache on certain events
 $flush_cache_callable = array( 'CategoryPosts', 'flush_cache' );
-add_action( 'save_post',                             $flush_cache_callable );
+add_action( 'edit_post',                             $flush_cache_callable );
 add_action( 'update_widget_category_posts',          $flush_cache_callable );
 add_action( 'deleted_post',                          $flush_cache_callable );
-add_action( 'wp_update_comment_count',               $flush_cache_callable );
+add_action( 'deleted_comment',                       $flush_cache_callable );
