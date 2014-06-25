@@ -32,8 +32,6 @@ class CategoryPosts extends WP_Widget {
 		global $post;
 		$post_old = $post; // Save the post object.
 
-		extract( $args );
-
 		$sizes = get_option( 'jlao_cat_post_thumb_sizes' );
 
 		// If not title, use the name of the category.
