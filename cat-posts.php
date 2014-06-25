@@ -63,15 +63,17 @@ class CategoryPosts extends WP_Widget {
 			'&orderby=' . $sort_by .
 			'&order=' . $sort_order;
 
-		$cache_key = self::get_cache_key();
+		$use_cache = apply_filters( 'category_posts_widget_use_cache', true );
+		if ( $use_cache ) {
+			$cache_key = self::get_cache_key();
+			$cached_widget_contents = wp_cache_get( $cache_key, 'widget' );
+			if ( ! empty( $cached_widget_contents ) ) {
 
-		$cached_widget_contents = wp_cache_get( $cache_key, 'widget' );
-		if ( ! empty( $cached_widget_contents ) ) {
-
-			// Cache Hit!  Print the cached contents and clean up
-			echo wp_kses_post( $cached_widget_contents );
-			$post = $post_old;
-			return;
+				// Cache Hit!  Print the cached contents and clean up
+				echo wp_kses_post( $cached_widget_contents );
+				$post = $post_old;
+				return;
+			}
 		}
 
 		// Cache miss. Build the content of the widget.
@@ -155,10 +157,17 @@ class CategoryPosts extends WP_Widget {
 
 		$output = wp_kses_post( $output );
 
-		// Max is limited by the liftetime of the nonce in get_cache_key
-		$cache_expires = apply_filters( 'category_posts_widget_cache_expires', 30 * MINUTE_IN_SECONDS );
-		wp_cache_set( $cache_key, $output, 'widget', $cache_expires );
+		$save_cache = apply_filters( 'category_posts_widget_save_cache', $use_cache );
+		if ( $save_cache ) {
+			// Max is limited by the liftetime of the nonce in get_cache_key
+			$cache_expires = apply_filters( 'category_posts_widget_cache_expires', 30 * MINUTE_IN_SECONDS );
 
+			if ( empty( $cache_key ) ) {
+				$cache_key = self::get_cache_key();
+			}
+
+			wp_cache_set( $cache_key, $output, 'widget', $cache_expires );
+		}
 		echo $output;
 	}
 
