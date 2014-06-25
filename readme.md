@@ -4,7 +4,7 @@
 * Tags: category, posts, widget
 * Requires at least: 3.8
 * Tested up to: 3.9.1
-* Stable tag: 3.4
+* Stable tag: 3.4.1
 
 ## Description
 
@@ -40,6 +40,8 @@ Note that version 3.0 drops support for [Simple Post Thumbnails plugin](http://w
 1. The widget configuration dialog.
 
 ## Changelog
+* 3.4.1
+  * Configurable object caching of the widget markup
 
 * 3.4
   * Add in escaping / sanitization
