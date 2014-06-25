@@ -156,6 +156,7 @@ class CategoryPosts extends WP_Widget {
 		$post = $post_old; // Restore the post object.
 
 		$output = wp_kses_post( $output );
+		echo $output;
 
 		$save_cache = apply_filters( 'category_posts_widget_save_cache', $use_cache );
 		if ( $save_cache ) {
@@ -168,7 +169,6 @@ class CategoryPosts extends WP_Widget {
 
 			wp_cache_set( $cache_key, $output, 'widget', $cache_expires );
 		}
-		echo $output;
 	}
 
 	/**
