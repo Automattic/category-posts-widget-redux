@@ -49,7 +49,7 @@ class CategoryPosts extends WP_Widget {
 
 		if ( in_array( $instance['sort_by'], $valid_sort_orders ) ) {
 			$sort_by = $instance['sort_by'];
-			$sort_order = (bool) $instance['asc_sort_order'] ? 'ASC' : 'DESC';
+			$sort_order = ( isset( $instance['asc_sort_order'] ) && $instance['asc_sort_order'] ) ? 'ASC' : 'DESC';
 		} else {
 			// by default, display latest first
 			$sort_by = 'date';
