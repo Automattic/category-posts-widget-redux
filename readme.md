@@ -42,6 +42,7 @@ Note that version 3.0 drops support for [Simple Post Thumbnails plugin](http://w
 ## Changelog
 * 3.4.1
   * Configurable object caching of the widget markup
+  * Filterable comment number display
 
 * 3.4
   * Add in escaping / sanitization
