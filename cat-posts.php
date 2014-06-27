@@ -124,7 +124,7 @@ class CategoryPosts extends WP_Widget {
 			}
 
 			if ( $instance['excerpt'] ) {
-				$output .= wp_kses_post( get_the_excerpt() );
+				$output .= '<div class="cat-posts-widget-excerpt">' . wp_kses_post( get_the_excerpt() ) . '</div>';
 			}
 
 			if ( $instance['comment_num'] ) {
@@ -153,9 +153,9 @@ class CategoryPosts extends WP_Widget {
 					$comment_output = apply_filters( 'category_posts_widget_comment_output', $comment_output, $number );
 
 					if ( ! empty( $comment_output ) ) {
-						$output .= '<p class="comment-num">( ';
+						$output .= '<p class="comment-num">(<span>';
 						$output .= esc_html( $comment_output );
-						$output .= ' )</p>';
+						$output .= '</span>)</p>';
 					}
 			}
 			$output .= '</li>';
