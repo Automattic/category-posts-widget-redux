@@ -23,7 +23,16 @@ class CategoryPosts extends WP_Widget {
 	const TEXT_DOMAIN = 'wp-category-posts-widget';
 
 	function __construct() {
-		parent::WP_Widget( false, $name = 'Category Posts' );
+		$arguments = array(
+			'classname' => 'wp_cat_posts',
+			'description' => esc_html__( 'Configurably display posts via category.', self::TEXT_DOMAIN ),
+		);
+
+		parent::__construct(
+			'wp-category-posts-widget', // Base ID
+			'Category Posts', // Name
+			$arguments
+		);
 	}
 
 	/**
