@@ -20,6 +20,7 @@ if ( function_exists( 'add_image_size' ) ) {
 }
 
 class CategoryPosts extends WP_Widget {
+	const TEXT_DOMAIN = 'wp-category-posts-widget';
 
 	function __construct() {
 		parent::WP_Widget( false, $name = 'Category Posts' );
@@ -131,17 +132,22 @@ class CategoryPosts extends WP_Widget {
 
 					// safer clone of core comments_number() function
 					$number = get_comments_number();
-					if ( $number > 1 ) {
-						$comment_output = str_replace( '%', number_format_i18n( $number ), __( '% Comments' ) );
-					}
-					elseif ( $number == 0 ) {
-						// By default, suppress the "No Comments" label
+
+					if ( $number == 0 ) {
+						// By default, suppress the "No Comments" label when none are present
 						if ( apply_filters( 'category_posts_widget_show_no_comments', false ) ) {
-							$comment_output = __( 'No Comments' );
+							$comment_output = __( 'No Comments', self::TEXT_DOMAIN );
 						}
 					}
 					else {
-						$comment_output = __( '1 Comment' );
+						$formatted_number = number_format_i18n( $number );
+						$comment_output = sprintf( _nx(
+							'1 Comment',
+							'%s Comments',
+							$formatted_number,
+							'Label for the number (integer) of comments on a particular post',
+							self::TEXT_DOMAIN
+						), $formatted_number );
 					}
 
 					$comment_output = apply_filters( 'category_posts_widget_comment_output', $comment_output, $number );
@@ -215,7 +221,7 @@ class CategoryPosts extends WP_Widget {
 	<p>
 	<label for="<?php
 		echo esc_attr( $this->get_field_id("title") );
-		?>"><?php esc_html_e( 'Title:' ); ?>
+		?>"><?php esc_html_e( 'Title:', self::TEXT_DOMAIN ); ?>
 		<input class="widefat" id="<?php
 			echo esc_attr( $this->get_field_id( 'title' ) );
 		?>" name="<?php
@@ -228,7 +234,7 @@ class CategoryPosts extends WP_Widget {
 
 	<p>
 	<label>
-		<?php esc_html_e( 'Category:' ); ?>
+		<?php esc_html_e( 'Category:', self::TEXT_DOMAIN ); ?>
 		<?php wp_dropdown_categories(
 			array(
 				'name' => $this->get_field_name( 'cat' ),
@@ -240,7 +246,7 @@ class CategoryPosts extends WP_Widget {
 
 	<p>
 	<label for="<?php echo esc_attr( $this->get_field_id( 'num' ) ); ?>">
-		<?php esc_html_e( 'Number of posts to show' ); ?>:
+		<?php esc_html_e( 'Number of posts to show', self::TEXT_DOMAIN ); ?>:
 		<input type="number" style="text-align: center; width: 20%; margin-left: 5px" id="<?php
 			echo esc_attr( $this->get_field_id( 'num' ) );
 		?>" name="<?php
@@ -255,23 +261,23 @@ class CategoryPosts extends WP_Widget {
 	<label for="<?php
 		echo esc_attr( $this->get_field_id( 'sort_by' ) );
 	?>">
-	<?php esc_html_e( 'Sort by' ); ?>:
+	<?php esc_html_e( 'Sort by', self::TEXT_DOMAIN ); ?>:
 	<select id="<?php
 	echo esc_attr( $this->get_field_id("sort_by") );
 	?>" name="<?php
 	echo esc_attr( $this->get_field_name("sort_by") );
 	?>">
 	<option value="date"<?php selected( $instance[ 'sort_by' ], "date" ); ?>><?php
-		esc_html_e( 'Date' );
+		esc_html_e( 'Date', self::TEXT_DOMAIN );
 	?></option>
 	<option value="title"<?php selected( $instance[ 'sort_by' ], "title" ); ?>><?php
-		esc_html_e( 'Title' );
+		esc_html_e( 'Title', self::TEXT_DOMAIN );
 	?></option>
 	<option value="comment_count"<?php selected( $instance[ 'sort_by' ], "comment_count" ); ?>><?php
-		esc_html_e( 'Number of comments' );
+		esc_html_e( 'Number of comments', self::TEXT_DOMAIN );
 	?></option>
 	<option value="rand"<?php selected( $instance[ 'sort_by' ], "rand" ); ?>><?php
-		esc_html_e( 'Random' );
+		esc_html_e( 'Random', self::TEXT_DOMAIN );
 	?></option>
 	</select>
 	</label>
@@ -289,7 +295,7 @@ class CategoryPosts extends WP_Widget {
 		echo esc_attr( $this->get_field_name("asc_sort_order") );
 	?>"
 		<?php checked( (bool) $instance[ 'asc_sort_order' ], true ); ?> />
-		<?php esc_html_e( 'Reverse sort order (ascending)' ); ?>
+		<?php esc_html_e( 'Reverse sort order (ascending)', self::TEXT_DOMAIN ); ?>
 	</label>
 	</p>
 
@@ -302,7 +308,7 @@ class CategoryPosts extends WP_Widget {
 		?>" name="<?php
 			echo esc_attr( $this->get_field_name("title_link") );
 		?>"<?php checked( (bool) $instance[ 'title_link' ], true ); ?> />
-		<?php esc_html_e( 'Make widget title link' ); ?>
+		<?php esc_html_e( 'Make widget title link', self::TEXT_DOMAIN ); ?>
 	</label>
 	</p>
 
@@ -314,14 +320,14 @@ class CategoryPosts extends WP_Widget {
 		?>" name="<?php
 			echo esc_attr( $this->get_field_name("excerpt") );
 		?>"<?php checked( (bool) $instance[ 'excerpt' ], true ); ?> />
-		<?php esc_html_e( 'Show post excerpt' ); ?>
+		<?php esc_html_e( 'Show post excerpt', self::TEXT_DOMAIN ); ?>
 	</label>
 	</p>
 
 	<p>
 	<label for="<?php
 		echo esc_attr( $this->get_field_id("excerpt_length") ); ?>">
-		<?php esc_html_e( 'Excerpt length (in words):' ); ?>
+		<?php esc_html_e( 'Excerpt length (in words):', self::TEXT_DOMAIN ); ?>
 	</label>
 	<input style="text-align: center; width: 20%; margin-left: 5px" type="number" id="<?php
 		echo esc_attr( $this->get_field_id("excerpt_length") ); ?>" name="<?php
@@ -338,7 +344,7 @@ class CategoryPosts extends WP_Widget {
 		?>" name="<?php
 			echo esc_attr( $this->get_field_name("comment_num") );
 		?>"<?php checked( (bool) $instance[ 'comment_num' ], true ); ?> />
-		<?php esc_html_e( 'Show number of comments' ); ?>
+		<?php esc_html_e( 'Show number of comments', self::TEXT_DOMAIN ); ?>
 	</label>
 	</p>
 
@@ -351,7 +357,7 @@ class CategoryPosts extends WP_Widget {
 	?>" name="<?php
 		echo esc_attr( $this->get_field_name("date") );
 	?>"<?php checked( (bool) $instance[ 'date' ], true ); ?> />
-		<?php esc_html_e( 'Show post date' ); ?>
+		<?php esc_html_e( 'Show post date', self::TEXT_DOMAIN ); ?>
 	</label>
 	</p>
 
@@ -364,15 +370,15 @@ class CategoryPosts extends WP_Widget {
 		?>" name="<?php
 			echo esc_attr( $this->get_field_name("thumb") );
 		?>"<?php checked( (bool) $instance[ 'thumb' ], true ); ?> />
-		<?php esc_html_e( 'Show post thumbnail' ); ?>
+		<?php esc_html_e( 'Show post thumbnail', self::TEXT_DOMAIN ); ?>
 	</label>
 	</p>
 	<p>
 	<label>
-		<?php esc_html_e('Thumbnail dimensions'); ?>:<br />
+		<?php esc_html_e( 'Thumbnail dimensions', self::TEXT_DOMAIN ); ?>:<br />
 		<label for="<?php
 			echo esc_attr( $this->get_field_id("thumb_w") ); ?>">
-			<?php esc_html_e( 'Width:' ); ?>
+			<?php esc_html_e( 'Width:', self::TEXT_DOMAIN ); ?>
 			<input class="widefat" style="width:20%; margin-left: 5px;" type="number" id="<?php
 				echo esc_attr( $this->get_field_id("thumb_w") );
 			?>" name="<?php
@@ -384,7 +390,7 @@ class CategoryPosts extends WP_Widget {
 
 		<label style="margin-left: 10px;" for="<?php
 			echo esc_attr( $this->get_field_id("thumb_h") ); ?>">
-			<?php esc_html_e( 'Height:' ); ?>
+			<?php esc_html_e( 'Height:', self::TEXT_DOMAIN ); ?>
 			<input class="widefat" style="width:20%; margin-left: 5px;" type="number" id="<?php
 				echo esc_attr( $this->get_field_id("thumb_h") );
 			?>" name="<?php
