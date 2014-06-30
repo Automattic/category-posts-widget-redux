@@ -5,7 +5,7 @@ Plugin URI: https://github.com/Automattic/wp-category-posts-widget
 Description: Adds a widget that can configurably display posts via category. Forked from https://github.com/jlao/wp-category-posts-widget & https://wordpress.org/plugins/category-posts/
 Author: James Lao
 Contributors: Automattic
-Version: 3.4.1-Automattic
+Version: 3.3p-a8c1
 Author URI: http://jameslao.com/
 */
 
@@ -20,6 +20,7 @@ if ( function_exists( 'add_image_size' ) ) {
 }
 
 class WP_Category_Posts_Widget extends WP_Widget {
+	const VERSION = '3.3p-a8c1';
 	const TEXT_DOMAIN = 'wp-category-posts-widget';
 
 	function __construct() {
