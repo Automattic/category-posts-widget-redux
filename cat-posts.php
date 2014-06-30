@@ -19,7 +19,7 @@ if ( function_exists( 'add_image_size' ) ) {
 	}
 }
 
-class CategoryPosts extends WP_Widget {
+class WP_Category_Posts_Widget extends WP_Widget {
 	const TEXT_DOMAIN = 'wp-category-posts-widget';
 
 	function __construct() {
@@ -433,15 +433,15 @@ class CategoryPosts extends WP_Widget {
 	}
 
 	static function widgets_init() {
-		return register_widget( "CategoryPosts" );
+		return register_widget( 'WP_Category_Posts_Widget' );
 	}
 
 }
 
-add_action( 'widgets_init', array( 'CategoryPosts', 'widgets_init' ) );
+add_action( 'widgets_init', array( 'WP_Category_Posts_Widget', 'widgets_init' ) );
 
 // Invalidate our cache on certain events
-$flush_cache_callable = array( 'CategoryPosts', 'flush_cache' );
+$flush_cache_callable = array( 'WP_Category_Posts_Widget', 'flush_cache' );
 add_action( 'edit_post',                             $flush_cache_callable );
 add_action( 'update_widget_category_posts',          $flush_cache_callable );
 add_action( 'deleted_post',                          $flush_cache_callable );
