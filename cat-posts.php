@@ -428,7 +428,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 	}
 
 	static function get_cache_key() {
-		$key = 'category_posts_widget-' . get_current_blog_id() . '-';
+		$key = 'category_posts_widget-' . self::VERSION . '-' . get_current_blog_id() . '-';
 		$key .= wp_create_nonce( $key );
 		return $key;
 	}
