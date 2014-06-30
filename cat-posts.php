@@ -92,9 +92,8 @@ class CategoryPosts extends WP_Widget {
 		$cat_posts = new WP_Query( $arg_string );
 
 		// Excerpt length filter
-		$new_excerpt_length = create_function( '$length', "return " . $instance[ 'excerpt_length' ] . ';' );
 		if ( $instance[ 'excerpt_length' ] > 0 ) {
-			add_filter('excerpt_length', $new_excerpt_length);
+			add_filter( 'excerpt_length', array( $this, 'excerpt_length_filter' ) );
 		}
 
 		$output .= wp_kses_post( $args['before_widget'] );
@@ -174,7 +173,7 @@ class CategoryPosts extends WP_Widget {
 
 		$output .= wp_kses_post( $args['after_widget'] );
 
-		remove_filter( 'excerpt_length', $new_excerpt_length );
+		remove_filter( 'excerpt_length', array( $this, 'excerpt_length_filter' ) );
 
 		$post = $post_old; // Restore the post object.
 
@@ -415,6 +414,16 @@ class CategoryPosts extends WP_Widget {
 	function flush_cache() {
 		$cache_key = self::get_cache_key();
 		wp_cache_delete( $cache_key, 'widget' );
+	}
+
+	function excerpt_length_filter( $length ) {
+		$settings = $this->get_settings();
+		if ( ! isset( $settings[$this->number] ) || ! isset( $settings[$this->number]['excerpt_length'] ) ) {
+			return $length;
+		}
+
+		$excerpt_length = absint( $settings[$this->number]['excerpt_length'] );
+		return $excerpt_length;
 	}
 
 	static function get_cache_key() {
