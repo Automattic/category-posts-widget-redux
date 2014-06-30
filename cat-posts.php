@@ -257,7 +257,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 	<p>
 	<label for="<?php echo esc_attr( $this->get_field_id( 'num' ) ); ?>">
 		<?php esc_html_e( 'Number of posts to show', self::TEXT_DOMAIN ); ?>:
-		<input type="number" style="text-align: center; width: 20%; margin-left: 5px" id="<?php
+		<input type="number" min="0" style="text-align: center; width: 20%; margin-left: 5px" id="<?php
 			echo esc_attr( $this->get_field_id( 'num' ) );
 		?>" name="<?php
 			echo esc_attr( $this->get_field_name( 'num' ) );
@@ -339,7 +339,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 		echo esc_attr( $this->get_field_id("excerpt_length") ); ?>">
 		<?php esc_html_e( 'Excerpt length (in words):', self::TEXT_DOMAIN ); ?>
 	</label>
-	<input style="text-align: center; width: 20%; margin-left: 5px" type="number" id="<?php
+	<input style="text-align: center; width: 20%; margin-left: 5px" type="number" min="0" id="<?php
 		echo esc_attr( $this->get_field_id("excerpt_length") ); ?>" name="<?php
 		echo esc_attr( $this->get_field_name("excerpt_length") ); ?>" value="<?php
 		echo esc_attr( $instance[ 'excerpt_length' ] ); ?>" size="3" />
@@ -389,7 +389,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 		<label for="<?php
 			echo esc_attr( $this->get_field_id("thumb_w") ); ?>">
 			<?php esc_html_e( 'Width:', self::TEXT_DOMAIN ); ?>
-			<input class="widefat" style="width:20%; margin-left: 5px;" type="number" id="<?php
+			<input class="widefat" style="width:20%; margin-left: 5px;" type="number" min="0" id="<?php
 				echo esc_attr( $this->get_field_id("thumb_w") );
 			?>" name="<?php
 				echo esc_attr( $this->get_field_name("thumb_w") );
@@ -401,7 +401,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 		<label style="margin-left: 10px;" for="<?php
 			echo esc_attr( $this->get_field_id("thumb_h") ); ?>">
 			<?php esc_html_e( 'Height:', self::TEXT_DOMAIN ); ?>
-			<input class="widefat" style="width:20%; margin-left: 5px;" type="number" id="<?php
+			<input class="widefat" style="width:20%; margin-left: 5px;" type="number" min="0" id="<?php
 				echo esc_attr( $this->get_field_id("thumb_h") );
 			?>" name="<?php
 				echo esc_attr( $this->get_field_name("thumb_h") );
