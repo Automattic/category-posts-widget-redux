@@ -4,7 +4,7 @@
 * Tags: category, posts, widget
 * Requires at least: 3.8
 * Tested up to: 3.9.1
-* Stable tag: 3.4.1
+* Stable tag: 3.3p-a8c1
 
 ## Description
 
@@ -40,11 +40,10 @@ Note that version 3.0 drops support for [Simple Post Thumbnails plugin](http://w
 1. The widget configuration dialog.
 
 ## Changelog
-* 3.4.1
+* 3.3p-a8c1
+  * Use class member functions instead of create_function calls
   * Configurable object caching of the widget markup
   * Filterable comment number display
-
-* 3.4
   * Add in escaping / sanitization
   * Improve adherence to WordPress style guidelines ( braces, whitespace, etc. )
   * Use HTML5 input type “number” on appropriate fields in the config.
