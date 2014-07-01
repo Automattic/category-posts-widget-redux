@@ -46,10 +46,30 @@ class WP_Category_Posts_Widget extends WP_Widget {
 
 		$sizes = get_option( 'jlao_cat_post_thumb_sizes' );
 
+		// avoid PHP notices
+		$title = isset( $instance[ 'title'] ) ? $instance[ 'title'] : '';
+		$cat = isset( $instance[ 'cat' ] ) ? $instance[ 'cat' ] : false;
+		$num = isset( $instance[ 'num' ] ) ? $instance[ 'num' ] : 0;
+		$sort_by = isset( $instance[ 'sort_by' ] ) ? $instance[ 'sort_by' ] : null;
+		$asc_sort_order = isset( $instance[ 'asc_sort_order' ] ) ? $instance[ 'asc_sort_order' ] : null;
+		$title_link = isset( $instance[ 'title_link' ] ) ? $instance[ 'title_link' ] : null;
+		$excerpt = isset( $instance[ 'excerpt' ] ) ? $instance[ 'excerpt' ] : null;
+		$excerpt_length = isset( $instance[ 'excerpt_length' ] ) ? $instance[ 'excerpt_length' ] : null;
+		$comment_num = isset( $instance[ 'comment_num' ] ) ? $instance[ 'comment_num' ] : null;
+		$date = isset( $instance[ 'date' ] ) ? $instance[ 'date' ] : null;
+		$thumb = isset( $instance[ 'thumb' ] ) ? $instance[ 'thumb' ] : null;
+		$thumb_w = isset( $instance[ 'thumb_w' ] ) ? $instance[ 'thumb_w' ] : null;
+		$thumb_h = isset( $instance[ 'thumb_h' ] ) ? $instance[ 'thumb_h' ] : null;
+
+		$before_widget = isset( $args['before_widget'] ) ? $args['before_widget'] : '';
+		$before_title = isset( $args['before_title'] ) ? $args['before_title'] : '';
+		$after_title = isset( $args['after_title'] ) ? $args['after_title'] : '';
+		$after_widget = isset( $args['after_widget'] ) ? $args['after_widget'] : '';
+
 		// If not title, use the name of the category.
-		if( ! $instance[ 'title' ] ) {
-			$category_info = get_category( $instance[ 'cat' ] );
-			$instance[ 'title' ] = $category_info->name;
+		if( ! $title ) {
+			$category_info = get_category( $cat );
+			$title = $category_info->name;
 		}
 
 		$valid_sort_orders = array(
@@ -59,17 +79,16 @@ class WP_Category_Posts_Widget extends WP_Widget {
 			'rand',
 		);
 
-		if ( in_array( $instance['sort_by'], $valid_sort_orders ) ) {
-			$sort_by = $instance['sort_by'];
-			$sort_order = ( isset( $instance['asc_sort_order'] ) && $instance['asc_sort_order'] ) ? 'ASC' : 'DESC';
+		if ( in_array( $sort_by, $valid_sort_orders ) ) {
+			$sort_order = $asc_sort_order ? 'ASC' : 'DESC';
 		} else {
 			// by default, display latest first
 			$sort_by = 'date';
 			$sort_order = 'DESC';
 		}
 
-		$arg_string = 'showposts=' . $instance[ 'num' ] .
-			'&cat=' . $instance[ 'cat' ] .
+		$arg_string = 'showposts=' . $num .
+			'&cat=' . $cat .
 			'&orderby=' . $sort_by .
 			'&order=' . $sort_order;
 
@@ -94,22 +113,22 @@ class WP_Category_Posts_Widget extends WP_Widget {
 		$cat_posts = new WP_Query( $arg_string );
 
 		// Excerpt length filter
-		if ( $instance[ 'excerpt_length' ] > 0 ) {
+		if ( $excerpt_length > 0 ) {
 			add_filter( 'excerpt_length', array( $this, 'excerpt_length_filter' ) );
 		}
 
-		$output .= wp_kses_post( $args['before_widget'] );
+		$output .= wp_kses_post( $before_widget );
 
 		// Widget title
-		$output .= wp_kses_post( $args['before_title'] );
-		if( $instance[ 'title_link' ] ) {
-			$output .= '<a href="' . esc_url( get_category_link( $instance[ 'cat' ] ) ) . '">' . esc_html( $instance[ 'title' ] ) . '</a>';
+		$output .= wp_kses_post( $before_title );
+		if( $title_link ) {
+			$output .= '<a href="' . esc_url( get_category_link( $cat ) ) . '">' . esc_html( $title ) . '</a>';
 		}
 		else {
-			$output .= esc_html( $instance[ 'title' ] );
+			$output .= esc_html( $title );
 		}
 
-		$output .= wp_kses_post( $args['after_title'] );
+		$output .= wp_kses_post( $after_title );
 
 		// Post list
 		$output .= "<ul>\n";
@@ -122,22 +141,22 @@ class WP_Category_Posts_Widget extends WP_Widget {
 			if (
 				function_exists('the_post_thumbnail') &&
 				current_theme_supports("post-thumbnails") &&
-				$instance[ 'thumb' ] &&
+				$thumb &&
 				has_post_thumbnail()
 			) {
 				$output .= '<a href="' . esc_url( get_the_permalink() ) . '" title="' . esc_attr( get_the_title_attribute() ) . '">' .
 					esc_html( get_the_post_thumbnail( 'cat_post_thumb_size' . $this->id ) ) . '</a>';
 			}
 
-			if ( $instance['date'] ) {
+			if ( $date ) {
 				$output .= '<p class="post-date">' . esc_html( get_the_time("j M Y") ) . '</p>';
 			}
 
-			if ( $instance['excerpt'] ) {
+			if ( $excerpt ) {
 				$output .= '<div class="cat-posts-widget-excerpt">' . wp_kses_post( get_the_excerpt() ) . '</div>';
 			}
 
-			if ( $instance['comment_num'] ) {
+			if ( $comment_num ) {
 				$comment_output = '';
 
 					// safer clone of core comments_number() function
@@ -173,7 +192,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 
 		$output .= "</ul>\n";
 
-		$output .= wp_kses_post( $args['after_widget'] );
+		$output .= wp_kses_post( $after_widget );
 
 		remove_filter( 'excerpt_length', array( $this, 'excerpt_length_filter' ) );
 
@@ -214,7 +233,9 @@ class WP_Category_Posts_Widget extends WP_Widget {
 			if ( !$sizes ) {
 				$sizes = array();
 			}
-			$sizes[$this->id] = array( $new_instance['thumb_w'], $new_instance['thumb_h'] );
+			$thumb_w = isset( $new_instance[ 'thumb_w' ] ) ? $new_instance[ 'thumb_w' ] : null;
+			$thumb_h = isset( $new_instance[ 'thumb_h' ] ) ? $new_instance[ 'thumb_h' ] : null;
+			$sizes[$this->id] = array( $thumb_w, $thumb_h );
 			update_option( 'jlao_cat_post_thumb_sizes', $sizes );
 		}
 
@@ -227,6 +248,20 @@ class WP_Category_Posts_Widget extends WP_Widget {
 	 * The configuration form.
 	 */
 	function form( $instance ) {
+		// avoid PHP notices
+		$title = isset( $instance[ 'title'] ) ? $instance[ 'title'] : '';
+		$cat = isset( $instance[ 'cat' ] ) ? $instance[ 'cat' ] : false;
+		$num = isset( $instance[ 'num' ] ) ? $instance[ 'num' ] : 0;
+		$sort_by = isset( $instance[ 'sort_by' ] ) ? $instance[ 'sort_by' ] : null;
+		$asc_sort_order = isset( $instance[ 'asc_sort_order' ] ) ? $instance[ 'asc_sort_order' ] : null;
+		$title_link = isset( $instance[ 'title_link' ] ) ? $instance[ 'title_link' ] : null;
+		$excerpt = isset( $instance[ 'excerpt' ] ) ? $instance[ 'excerpt' ] : null;
+		$excerpt_length = isset( $instance[ 'excerpt_length' ] ) ? $instance[ 'excerpt_length' ] : null;
+		$comment_num = isset( $instance[ 'comment_num' ] ) ? $instance[ 'comment_num' ] : null;
+		$date = isset( $instance[ 'date' ] ) ? $instance[ 'date' ] : null;
+		$thumb = isset( $instance[ 'thumb' ] ) ? $instance[ 'thumb' ] : null;
+		$thumb_w = isset( $instance[ 'thumb_w' ] ) ? $instance[ 'thumb_w' ] : null;
+		$thumb_h = isset( $instance[ 'thumb_h' ] ) ? $instance[ 'thumb_h' ] : null;
 	?>
 	<p>
 	<label for="<?php
@@ -237,7 +272,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 		?>" name="<?php
 			echo esc_attr( $this->get_field_name( 'title' ) );
 		?>" type="text" value="<?php
-			echo esc_attr( $instance[ 'title'] );
+			echo esc_attr( $title );
 		?>" />
 	</label>
 	</p>
@@ -247,8 +282,8 @@ class WP_Category_Posts_Widget extends WP_Widget {
 		<?php esc_html_e( 'Category:', self::TEXT_DOMAIN ); ?>
 		<?php wp_dropdown_categories(
 			array(
-				'name' => $this->get_field_name( 'cat' ),
-				'selected' => $instance[ 'cat' ],
+				'name' => esc_attr( $this->get_field_name( 'cat' ) ),
+				'selected' => (int) $cat,
 			)
 		); ?>
 	</label>
@@ -262,7 +297,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 		?>" name="<?php
 			echo esc_attr( $this->get_field_name( 'num' ) );
 		?>" type="text" value="<?php
-			echo absint( $instance[ 'num' ] );
+			echo absint( $num );
 		?>" size='3' />
 	</label>
 	</p>
@@ -277,16 +312,16 @@ class WP_Category_Posts_Widget extends WP_Widget {
 	?>" name="<?php
 	echo esc_attr( $this->get_field_name("sort_by") );
 	?>">
-	<option value="date"<?php selected( $instance[ 'sort_by' ], "date" ); ?>><?php
+	<option value="date"<?php selected( $sort_by, "date" ); ?>><?php
 		esc_html_e( 'Date', self::TEXT_DOMAIN );
 	?></option>
-	<option value="title"<?php selected( $instance[ 'sort_by' ], "title" ); ?>><?php
+	<option value="title"<?php selected( $sort_by, "title" ); ?>><?php
 		esc_html_e( 'Title', self::TEXT_DOMAIN );
 	?></option>
-	<option value="comment_count"<?php selected( $instance[ 'sort_by' ], "comment_count" ); ?>><?php
+	<option value="comment_count"<?php selected( $sort_by, "comment_count" ); ?>><?php
 		esc_html_e( 'Number of comments', self::TEXT_DOMAIN );
 	?></option>
-	<option value="rand"<?php selected( $instance[ 'sort_by' ], "rand" ); ?>><?php
+	<option value="rand"<?php selected( $sort_by, "rand" ); ?>><?php
 		esc_html_e( 'Random', self::TEXT_DOMAIN );
 	?></option>
 	</select>
@@ -304,7 +339,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 	name="<?php
 		echo esc_attr( $this->get_field_name("asc_sort_order") );
 	?>"
-		<?php checked( (bool) $instance[ 'asc_sort_order' ], true ); ?> />
+		<?php checked( (bool) $asc_sort_order, true ); ?> />
 		<?php esc_html_e( 'Reverse sort order (ascending)', self::TEXT_DOMAIN ); ?>
 	</label>
 	</p>
@@ -317,7 +352,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 			echo esc_attr( $this->get_field_id("title_link") );
 		?>" name="<?php
 			echo esc_attr( $this->get_field_name("title_link") );
-		?>"<?php checked( (bool) $instance[ 'title_link' ], true ); ?> />
+		?>"<?php checked( (bool) $title_link, true ); ?> />
 		<?php esc_html_e( 'Make widget title link', self::TEXT_DOMAIN ); ?>
 	</label>
 	</p>
@@ -329,7 +364,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 			echo esc_attr( $this->get_field_id("excerpt") );
 		?>" name="<?php
 			echo esc_attr( $this->get_field_name("excerpt") );
-		?>"<?php checked( (bool) $instance[ 'excerpt' ], true ); ?> />
+		?>"<?php checked( (bool) $excerpt, true ); ?> />
 		<?php esc_html_e( 'Show post excerpt', self::TEXT_DOMAIN ); ?>
 	</label>
 	</p>
@@ -342,7 +377,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 	<input style="text-align: center; width: 20%; margin-left: 5px" type="number" min="0" id="<?php
 		echo esc_attr( $this->get_field_id("excerpt_length") ); ?>" name="<?php
 		echo esc_attr( $this->get_field_name("excerpt_length") ); ?>" value="<?php
-		echo esc_attr( $instance[ 'excerpt_length' ] ); ?>" size="3" />
+		echo esc_attr( $excerpt_length ); ?>" size="3" />
 	</p>
 
 	<p>
@@ -353,7 +388,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 			echo esc_attr( $this->get_field_id("comment_num") );
 		?>" name="<?php
 			echo esc_attr( $this->get_field_name("comment_num") );
-		?>"<?php checked( (bool) $instance[ 'comment_num' ], true ); ?> />
+		?>"<?php checked( (bool) $comment_num, true ); ?> />
 		<?php esc_html_e( 'Show number of comments', self::TEXT_DOMAIN ); ?>
 	</label>
 	</p>
@@ -366,7 +401,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 			echo esc_attr( $this->get_field_id("date") );
 	?>" name="<?php
 		echo esc_attr( $this->get_field_name("date") );
-	?>"<?php checked( (bool) $instance[ 'date' ], true ); ?> />
+	?>"<?php checked( (bool) $date, true ); ?> />
 		<?php esc_html_e( 'Show post date', self::TEXT_DOMAIN ); ?>
 	</label>
 	</p>
@@ -379,7 +414,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 			echo esc_attr( $this->get_field_id("thumb") );
 		?>" name="<?php
 			echo esc_attr( $this->get_field_name("thumb") );
-		?>"<?php checked( (bool) $instance[ 'thumb' ], true ); ?> />
+		?>"<?php checked( (bool) $thumb, true ); ?> />
 		<?php esc_html_e( 'Show post thumbnail', self::TEXT_DOMAIN ); ?>
 	</label>
 	</p>
@@ -394,7 +429,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 			?>" name="<?php
 				echo esc_attr( $this->get_field_name("thumb_w") );
 			?>" value="<?php
-				echo esc_attr( $instance[ 'thumb_w' ] );
+				echo esc_attr( $thumb_w );
 			?>" />
 		</label>
 
@@ -406,7 +441,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 			?>" name="<?php
 				echo esc_attr( $this->get_field_name("thumb_h") );
 			?>" value="<?php
-				echo esc_attr( $instance[ 'thumb_h' ] ); ?>" />
+				echo esc_attr( $thumb_h ); ?>" />
 		</label>
 	</label>
 	</p>
