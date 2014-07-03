@@ -242,8 +242,6 @@ class WP_Category_Posts_Widget extends WP_Widget {
 			update_option( 'jlao_cat_post_thumb_sizes', $sizes );
 		}
 
-		do_action( 'update_widget_category_posts' );
-
 		return $new_instance;
 	}
 
@@ -482,7 +480,8 @@ add_action( 'widgets_init', array( 'WP_Category_Posts_Widget', 'widgets_init' ) 
 
 // Invalidate our cache on certain events
 $flush_cache_callable = array( 'WP_Category_Posts_Widget', 'flush_cache' );
+$update_option_action = 'update_option_widget_' . WP_Category_Posts_Widget::BASE_ID;
 add_action( 'edit_post',                             $flush_cache_callable );
-add_action( 'update_widget_category_posts',          $flush_cache_callable );
 add_action( 'deleted_post',                          $flush_cache_callable );
 add_action( 'deleted_comment',                       $flush_cache_callable );
+add_action( $update_option_action,                   $flush_cache_callable );
