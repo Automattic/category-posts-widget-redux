@@ -21,18 +21,21 @@ if ( function_exists( 'add_image_size' ) ) {
 }
 
 class WP_Category_Posts_Widget extends WP_Widget {
-	const VERSION = '3.3p-a8c1';
+	const BASE_ID = 'wp-category-posts-widget';
+	const CLASS_NAME = 'wp_cat_posts';
+	const DISPLAY_NAME = 'Category Posts';
 	const TEXT_DOMAIN = 'wp-category-posts-widget';
+	const VERSION = '3.3p-a8c1';
 
 	function __construct() {
 		$arguments = array(
-			'classname' => 'wp_cat_posts',
+			'classname' => self::CLASS_NAME,
 			'description' => esc_html__( 'Configurably display posts via category.', self::TEXT_DOMAIN ),
 		);
 
 		parent::__construct(
-			'wp-category-posts-widget', // Base ID
-			'Category Posts', // Name
+			self::BASE_ID,
+			self::DISPLAY_NAME,
 			$arguments
 		);
 	}
