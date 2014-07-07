@@ -206,12 +206,17 @@ class WP_Category_Posts_Widget extends WP_Widget {
 
 		$save_cache = apply_filters( 'category_posts_widget_save_cache', $use_cache );
 		if ( $save_cache ) {
-			// Max is limited by the liftetime of the nonce in get_cache_key
-			$cache_expires = apply_filters( 'category_posts_widget_cache_expires', 30 * MINUTE_IN_SECONDS );
-
 			if ( empty( $cache_key ) ) {
 				$cache_key = self::get_cache_key();
 			}
+
+			$save_blocked = wp_cache_get( $cache_key . '-save_blocked', 'widget' );
+			if ( $save_blocked ) {
+				return;
+			}
+
+			// Max is limited by the liftetime of the nonce in get_cache_key
+			$cache_expires = apply_filters( 'category_posts_widget_cache_expires', 30 * MINUTE_IN_SECONDS );
 
 			wp_cache_set( $cache_key, $output, 'widget', $cache_expires );
 		}
@@ -231,6 +236,7 @@ class WP_Category_Posts_Widget extends WP_Widget {
 		 * the widget is shown so we register the sizes
 		 * outside of the widget class.
 		 */
+
 		if ( function_exists( 'the_post_thumbnail' ) ) {
 			$sizes = get_option('jlao_cat_post_thumb_sizes');
 			if ( !$sizes ) {
@@ -450,7 +456,19 @@ class WP_Category_Posts_Widget extends WP_Widget {
 	}
 
 	function flush_cache() {
+		$use_cache = apply_filters( 'category_posts_widget_use_cache', true );
+		if ( ! $use_cache ) {
+			return;
+		}
+
 		$cache_key = self::get_cache_key();
+
+		// Block updating the cache for an arbitrary amount of time to give the delete opportunity to propagate
+		$block_save_cache_seconds = (int) apply_filters( 'category_posts_widget_block_save_cache_seconds', 10 );
+		if ( $block_save_cache_seconds > 0 ) {
+			wp_cache_set( $cache_key . '-save_blocked', 1, 'widget', $block_save_cache_seconds );
+		}
+
 		wp_cache_delete( $cache_key, 'widget' );
 	}
 
