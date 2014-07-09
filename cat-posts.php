@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Category Posts Widget
-Plugin URI: https://github.com/Automattic/wp-category-posts-widget
+Plugin URI: https://github.com/Automattic/category-posts-widget-redux
 Description: Adds a widget that can configurably display posts via category.
  Forked from https://github.com/jlao/wp-category-posts-widget & https://wordpress.org/plugins/category-posts/
 Author: James Lao
@@ -20,7 +20,7 @@ if ( function_exists( 'add_image_size' ) ) {
 	}
 }
 
-class WP_Category_Posts_Widget extends WP_Widget {
+class WP_Category_Posts_Widget_Redux extends WP_Widget {
 	const BASE_ID = 'wp-category-posts-widget';
 	const CLASS_NAME = 'wp_cat_posts';
 	const DISPLAY_NAME = 'Category Posts';
@@ -489,16 +489,16 @@ class WP_Category_Posts_Widget extends WP_Widget {
 	}
 
 	static function widgets_init() {
-		return register_widget( 'WP_Category_Posts_Widget' );
+		return register_widget( 'WP_Category_Posts_Widget_Redux' );
 	}
 
 }
 
-add_action( 'widgets_init', array( 'WP_Category_Posts_Widget', 'widgets_init' ) );
+add_action( 'widgets_init', array( 'WP_Category_Posts_Widget_Redux', 'widgets_init' ) );
 
 // Invalidate our cache on certain events
-$flush_cache_callable = array( 'WP_Category_Posts_Widget', 'flush_cache' );
-$update_option_action = 'update_option_widget_' . WP_Category_Posts_Widget::BASE_ID;
+$flush_cache_callable = array( 'WP_Category_Posts_Widget_Redux', 'flush_cache' );
+$update_option_action = 'update_option_widget_' . WP_Category_Posts_Widget_Redux::BASE_ID;
 add_action( 'edit_post',                             $flush_cache_callable );
 add_action( 'deleted_post',                          $flush_cache_callable );
 add_action( 'deleted_comment',                       $flush_cache_callable );
