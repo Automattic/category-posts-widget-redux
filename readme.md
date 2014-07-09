@@ -1,6 +1,7 @@
-# WordPress Category Posts Widget
+# WordPress Category Posts Widget Redux
 * Contributors: James Lao, Automattic, Jeff Bowen
 * Author URL: http://jameslao.com/
+* Fork URL: http://vip.wordpress.com/plugins/category-posts-widget/
 * Tags: category, posts, widget
 * Requires at least: 3.8
 * Tested up to: 3.9.1
