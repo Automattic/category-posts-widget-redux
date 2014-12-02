@@ -152,7 +152,7 @@ class WP_Category_Posts_Widget_Redux extends WP_Widget {
 			}
 
 			if ( $date ) {
-				$output .= '<p class="post-date">' . esc_html( get_the_time("j M Y") ) . '</p>';
+				$output .= '<p class="post-date">' . esc_html( get_the_time( get_option('date_format') ) ) . '</p>';
 			}
 
 			if ( $excerpt ) {
